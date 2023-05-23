@@ -56,7 +56,7 @@ service / on new http:Listener(9090) {
         io:println("--> Image URL: ", imageRes.data[0].url);
         string imageURL = imageRes.data[0].url.toString();
 
-        sql:ParameterizedQuery insertQuery = `insert into products (name, description, price, image_url) values (${productInfo.name}, ${description}, ${priceMsg.ProductPrice}, ${imageURL})`;
+        sql:ParameterizedQuery insertQuery = `insert into product_info (name, description, price, image_url) values (${productInfo.name}, ${description}, ${priceMsg.ProductPrice}, ${imageURL})`;
         sql:ExecutionResult executionResult = check mysqlEp->execute(insertQuery);
         io:println(executionResult.lastInsertId);
     }
