@@ -4,6 +4,7 @@ import ballerinax/openai.images;
 import ballerinax/openai.text;
 import ballerina/http;
 import ballerina/io;
+import ballerina/sql;
 
 configurable string priceEndpoint = ?;
 http:Client priceClient = check new (priceEndpoint);
@@ -53,7 +54,11 @@ service / on new http:Listener(9090) {
         };
         images:ImagesResponse imageRes = check imagesEp->/images/generations.post(imageRequest);
         io:println("--> Image URL: ", imageRes.data[0].url);
+        string imageURL = imageRes.data[0].url.toString();
 
+        sql:ParameterizedQuery insertQuery = `insert into products (name, description, price, image_url) values (${productInfo.name}, ${description}, ${priceMsg.ProductPrice}, ${imageURL})`;
+        sql:ExecutionResult executionResult = check mysqlEp->execute(insertQuery);
+        io:println(executionResult.lastInsertId);
     }
 }
 
@@ -80,4 +85,10 @@ images:Client imagesEp = check new (config = {
         token: openAIToken
     }
 });
-mysql:Client mysqlEp = check new (host = "", user = "", password = "", database = "", port = 0);
+mysql:Client mysqlEp = check new (host = dbHost, user = dbUser, password = dbPassword, database = dbName, port = dbPort);
+configurable string dbHost = ?;
+configurable string dbUser = ?;
+configurable string dbName = ?;
+configurable string dbPassword = ?;
+configurable int dbPort = ?;
+
